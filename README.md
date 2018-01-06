@@ -57,4 +57,4 @@ You cannot access this resource
 ```
 
 ### REFERENCES
-[https://github.com/caberger/jerseyguice]
+https://github.com/caberger/jerseyguice
