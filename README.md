@@ -55,3 +55,6 @@ $ curl --request GET \
   --header 'authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMjMiLCJ0aW1lc3RhbXAiOjE1MTUyNDg3NDQzNjN9.eLTFYZeviVA-HJdIpRm9MOEZrwfyPo3dV6SVsYu-Y_KT1RehWeD1rYJL9-KSz_or2I3FMwV7UIDBscBcNW7wwQ'
 You cannot access this resource
 ```
+
+### REFERENCES
+[https://github.com/caberger/jerseyguice]
