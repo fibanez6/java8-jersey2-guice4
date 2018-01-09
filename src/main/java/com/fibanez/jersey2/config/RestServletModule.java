@@ -29,44 +29,62 @@ public abstract class RestServletModule extends ServletModule {
 
     private class RestKeyBindingBuilderImpl implements RestKeyBindingBuilder {
         List<String> paths;
+        Map<String, String> params = new HashMap<>();
 
         public RestKeyBindingBuilderImpl(List<String> paths) {
             this.paths = paths;
-        }
-
-        private boolean checkIfPackageExistsAndLog(String packge) {
-            boolean exists = false;
-            String resourcePath = packge.replace(".", "/");
-            URL resource = getClass().getClassLoader().getResource(resourcePath);
-            if (resource != null) {
-                exists = true;
-                log.log(Level.INFO, "rest(" + paths + ").packages(" + packge + ")");
-            } else {
-                log.log(Level.INFO, "No Beans in '" + packge + "' found. Requests " + paths + " will fail.");
-            }
-            return exists;
+            this.params.put("javax.ws.rs.Application", AppResourceConfig.class.getCanonicalName());
         }
 
         @Override
-        public void packages(String ... packages) {
-            StringBuilder sb = new StringBuilder();
+        public RestKeyBindingBuilder packages(String ... packages) {
+            String values = validateResource("packages", packages);
+            if (values.length() > 0) {
+                params.put("jersey.config.server.provider.packages", values);
+            }
+            return this;
+        }
 
-            for (String pkg: packages) {
-                if (sb.length() > 0) {
-                    sb.append(',');
-                }
-                checkIfPackageExistsAndLog(pkg);
-                sb.append(pkg);
+        @Override
+        public RestKeyBindingBuilder classnames(String ... classnames) {
+            if (classnames.length > 0) {
+                String values = String.join(",", classnames);
+                params.put("jersey.config.server.provider.classnames", values);
             }
-            Map<String, String> params = new HashMap<>();
-            params.put("javax.ws.rs.Application", AppResourceConfig.class.getCanonicalName());
-            if (sb.length() > 0) {
-                params.put("jersey.config.server.provider.packages", sb.toString());
-            }
+            return this;
+        }
+
+        @Override
+        public void build() {
             bind(ServletContainer.class).in(Scopes.SINGLETON);
             for (String path: paths) {
                 serve(path).with(ServletContainer.class, params);
             }
+        }
+
+        private String validateResource(String resourceName, String... resourcePackages) {
+            StringBuilder sb = new StringBuilder();
+            for (String pkg: resourcePackages) {
+                if (sb.length() > 0) {
+                    sb.append(',');
+                }
+                checkIfResourceExistsAndLog(resourceName, pkg);
+                sb.append(pkg);
+            }
+            return sb.toString();
+        }
+
+        private boolean checkIfResourceExistsAndLog(String resourceName, String resourcePackage) {
+            boolean exists = false;
+            String resourcePath = resourcePackage.replace(".", "/");
+            URL resourceURL = getClass().getClassLoader().getResource(resourcePath);
+            if (resourceURL != null) {
+                exists = true;
+                log.log(Level.INFO, "\nrest(" + paths + ")."+resourceName+"(" + resourcePackage + ")");
+            } else {
+                log.log(Level.INFO, "\nNo Beans in '" + resourceName + "' found. Requests " + paths + " will fail.");
+            }
+            return exists;
         }
     }
 

@@ -10,6 +10,28 @@
         <param-value>classpath:config.properties</param-value>
     </context-param>
 
+    <servlet>
+        <servlet-name>Jersey2Config</servlet-name>
+        <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
+        <init-param>
+            <param-name>api.version</param-name>
+            <param-value>1.0.0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>swagger.api.title</param-name>
+            <param-value>Jersey2-Boilerplate</param-value>
+        </init-param>
+        <init-param>
+            <param-name>swagger.api.basepath</param-name>
+            <param-value>http://localhost:8080/api</param-value>
+        </init-param>
+        <init-param>
+            <param-name>swagger.pretty.print</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
     <listener>
         <listener-class>com.fibanez.jersey2.AppGuiceServletContextListener</listener-class>
     </listener>
@@ -17,8 +39,18 @@
         <filter-name>GuiceFilter</filter-name>
         <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
         <init-param>
-            <param-name>restPath</param-name>
-            <param-value>com.fibanez.jersey2.web.rest.controller</param-value>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>
+                com.fibanez.jersey2.web.rest.controller,
+                io.swagger.jaxrs.listing
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>jersey.config.server.provider.classnames</param-name>
+            <param-value>
+                io.swagger.jaxrs.listing.ApiListingResource,
+                io.swagger.jaxrs.listing.SwaggerSerializers
+            </param-value>
         </init-param>
     </filter>
     <filter-mapping>

@@ -20,15 +20,11 @@ public class GenericResponse implements Serializable {
     @JsonProperty("message")
     String message;
 
-    @JsonProperty("description")
-    String description;
-
     public static class Builder {
         String type;
         String status;
         String code;
         String message;
-        String description;
 
         public Builder type(String type) {
             this.type = type;
@@ -46,10 +42,6 @@ public class GenericResponse implements Serializable {
             this.message = message;
             return this;
         }
-        public Builder description(String description) {
-            this.description = description;
-            return this;
-        }
         public GenericResponse build() {
             return new GenericResponse(this);
         }
@@ -61,7 +53,6 @@ public class GenericResponse implements Serializable {
         this.status= builder.status;
         this.code= builder.code;
         this.message= builder.message;
-        this.description= builder.description;
     }
 
 }

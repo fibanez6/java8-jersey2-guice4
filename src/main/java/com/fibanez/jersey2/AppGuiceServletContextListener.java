@@ -7,12 +7,14 @@ import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.google.inject.servlet.GuiceServletContextListener;
 
+import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import java.util.Collection;
 
 public class AppGuiceServletContextListener extends GuiceServletContextListener {
 
+    private static final String CLEAN_REGEX = "\\r+|\\n+|\\s+";
     private String propertyFilePath;
 
     @Override
@@ -25,8 +27,9 @@ public class AppGuiceServletContextListener extends GuiceServletContextListener 
 
     @Override
     protected Injector getInjector() {
-        final String urlPatternMapping = "GuiceFilter";
-        final String restPathParam = "restPath";
+        final String filterName = "GuiceFilter";
+        final String packageParam = "jersey.config.server.provider.packages";
+        final String classnameParam = "jersey.config.server.provider.classnames";
 
         return Guice.createInjector(
                 Stage.PRODUCTION
@@ -35,18 +38,26 @@ public class AppGuiceServletContextListener extends GuiceServletContextListener 
                     @Override
                     protected void configureServlets() {
                         Collection<String> urlPattern = getUrlPatternMappings();
-                        String restClassesPath = getRestClassesPath();
+                        String[] packages = getInitParams(packageParam);
+                        String[] classnames = getInitParams(classnameParam);
 
-                        rest(urlPattern).packages(restClassesPath);
+                        rest(urlPattern).packages(packages).classnames(classnames).build();
                     }
 
+                    private FilterRegistration getFilterRegistration() {
+                        ServletContext servletContext = getServletContext();
+                        return servletContext.getFilterRegistration(filterName);
+                    }
                     private Collection<String> getUrlPatternMappings() {
-                        ServletContext servletContext = getServletContext();
-                        return servletContext.getFilterRegistration(urlPatternMapping).getUrlPatternMappings();
+                        return getFilterRegistration().getUrlPatternMappings();
                     }
-                    private String getRestClassesPath() {
-                        ServletContext servletContext = getServletContext();
-                        return servletContext.getFilterRegistration(urlPatternMapping).getInitParameter(restPathParam);
+                    private String[] getInitParams(String initParam) {
+                        if (initParam == null || initParam.isEmpty()) {
+                            return new String[]{};
+                        }
+                        String paramValues = getFilterRegistration().getInitParameter(initParam);
+                        paramValues = paramValues.replaceAll(CLEAN_REGEX, "");
+                        return paramValues.split(",");
                     }
                 }
         );
