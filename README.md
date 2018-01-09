@@ -10,8 +10,8 @@ with Json Web Token Authentication
 
 ### Installation
 ```
-  > git pull git@github.com:fibanez6/java8-jersey2-guice4.git
-  > cd java8-jersey2-guice4
+  > git pull git@github.com:fibanez6/tomcat8-jersey2-guice4.git
+  > cd tomcat8-jersey2-guice4
   > mvn clean install
 ```
 
